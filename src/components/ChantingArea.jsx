@@ -148,20 +148,21 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
         )}
       </div>
 
-      <div className="flex justify-center gap-2 mt-4 mb-2">
+      <div className="flex justify-center items-center gap-2 mt-4 mb-2">
+        <span className="text-muted" style={{ fontSize: '0.9rem' }}>Increment by:</span>
         <button 
           className={`btn ${multiplier === 1 ? '' : 'outline'}`} 
-          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}
           onClick={() => setMultiplier(1)}
         >
-          Count by 1
+          1x
         </button>
         <button 
           className={`btn ${multiplier === 5 ? '' : 'outline'}`}
-          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}
           onClick={() => setMultiplier(5)}
         >
-          Count by 5
+          5x
         </button>
       </div>
 
