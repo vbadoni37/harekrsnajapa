@@ -8,6 +8,7 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
   const [audioUrl, setAudioUrl] = useState(null);
   const [currentChant, setCurrentChant] = useState(dailyChants);
   const [currentRound, setCurrentRound] = useState(dailyRounds);
+  const [multiplier, setMultiplier] = useState(1);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
     setTimeout(() => ripple.remove(), 600);
 
     // Update Counts
-    const nextChant = currentChant + 1;
+    const nextChant = currentChant + multiplier;
     
     if (nextChant >= 108) {
       // Round Complete
@@ -147,7 +148,24 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
         )}
       </div>
 
-      <div className="flex justify-between items-center mt-4 mb-2">
+      <div className="flex justify-center gap-2 mt-4 mb-2">
+        <button 
+          className={`btn ${multiplier === 1 ? '' : 'outline'}`} 
+          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          onClick={() => setMultiplier(1)}
+        >
+          Count by 1
+        </button>
+        <button 
+          className={`btn ${multiplier === 5 ? '' : 'outline'}`}
+          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          onClick={() => setMultiplier(5)}
+        >
+          Count by 5
+        </button>
+      </div>
+
+      <div className="flex justify-between items-center mt-2 mb-2">
         <div className="stat-box" style={{ flex: 1, marginRight: '0.5rem' }}>
           <div className="stat-label">Rounds Completed</div>
           <div className="stat-value text-primary">{currentRound}</div>
