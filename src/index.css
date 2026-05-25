@@ -182,46 +182,25 @@ body {
 .gap-4 { gap: 1rem; }
 .w-full { width: 100%; }
 
-/* Chanting Area specific */
-.chant-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* Japa Button specific */
+.japa-btn {
+  background: radial-gradient(circle, rgba(245, 158, 11, 1) 0%, rgba(217, 119, 6, 1) 100%);
+  color: #fff;
+  border: none;
+  padding: 2rem;
   border-radius: 24px;
-  background: radial-gradient(circle, rgba(30,41,59,1) 0%, rgba(15,23,42,1) 100%);
-  border: 2px dashed rgba(245, 158, 11, 0.3);
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  margin-top: 1rem;
-  transition: all 0.3s;
-}
-
-.chant-box:active {
-  background: radial-gradient(circle, rgba(40,51,70,1) 0%, rgba(15,23,42,1) 100%);
-  transform: scale(0.98);
-}
-
-.chant-count {
-  font-size: clamp(5rem, 25vw, 10rem);
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-color);
-  text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
-  line-height: 1;
-  z-index: 2;
-  text-align: center;
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
+  cursor: pointer;
   width: 100%;
-}
-
-.chant-label {
-  font-size: 1.5rem;
-  color: var(--text-muted);
   margin-top: 1rem;
-  z-index: 2;
+  margin-bottom: 1rem;
+  transition: transform 0.1s;
+  user-select: none;
+}
+.japa-btn:active {
+  transform: scale(0.95);
 }
 
 .ripple {

@@ -126,29 +126,33 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
   }
 
   return (
-    <div className="flex flex-col w-full h-full" style={{ flex: 1 }}>
+    <div className="flex flex-col w-full h-full" style={{ flex: 1, position: 'relative' }}>
       {audioUrl && <audio ref={audioRef} src={audioUrl} className="hidden" preload="auto" />}
       
-      <div 
-        className="chant-box" 
-        onClick={handleChantAreaClick}
-        style={{ pointerEvents: showHariBol ? 'none' : 'auto', flex: 1, minHeight: '50vh' }}
-      >
-        <div className="chant-count">{currentChant}</div>
-        <div className="chant-label">Tap anywhere to chant</div>
-
-        {showHariBol && (
-          <div className="hari-bol-overlay flash-animation" style={{ pointerEvents: 'auto' }}>
-            <div className="hari-bol-text">Hari Bol !</div>
-            <p className="text-xl text-white mb-8">One Mala Completed</p>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); startNextRound(); }}>
-              Start Next Round
-            </button>
-          </div>
-        )}
+      {/* 1. TOP: Hindi Mahamantra */}
+      <div className="text-center mt-2 mb-6 font-bold text-primary" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
+        हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे ।<br/>
+        हरे राम हरे राम राम राम हरे हरे ॥
       </div>
 
-      <div className="flex justify-center items-center gap-2 mt-4 mb-2">
+      {/* 2. STATS ROW: Count | Rounds Completed | Target Round */}
+      <div className="flex justify-between items-center mb-6 gap-2">
+        <div className="stat-box" style={{ flex: 1, padding: '0.8rem' }}>
+          <div className="stat-label">Count</div>
+          <div className="stat-value text-primary" style={{ fontSize: '2rem' }}>{currentChant}</div>
+        </div>
+        <div className="stat-box" style={{ flex: 1, padding: '0.8rem' }}>
+          <div className="stat-label">Rounds</div>
+          <div className="stat-value text-primary" style={{ fontSize: '2rem' }}>{currentRound}</div>
+        </div>
+        <div className="stat-box" style={{ flex: 1, padding: '0.8rem' }}>
+          <div className="stat-label">Target</div>
+          <div className="stat-value" style={{ fontSize: '2rem' }}>16</div>
+        </div>
+      </div>
+
+      {/* 3. MULTIPLIER TOGGLE */}
+      <div className="flex justify-center items-center gap-2 mb-auto mt-4">
         <span className="text-muted" style={{ fontSize: '0.9rem' }}>Increment by:</span>
         <button 
           className={`btn ${multiplier === 1 ? '' : 'outline'}`} 
@@ -166,21 +170,28 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
         </button>
       </div>
 
-      <div className="flex justify-between items-center mt-2 mb-2">
-        <div className="stat-box" style={{ flex: 1, marginRight: '0.5rem' }}>
-          <div className="stat-label">Rounds Completed</div>
-          <div className="stat-value text-primary">{currentRound}</div>
+      {/* 4. JAPA BUTTON (Bottom, just above nav) */}
+      <button 
+        className="japa-btn" 
+        onClick={handleChantAreaClick}
+        style={{ pointerEvents: showHariBol ? 'none' : 'auto' }}
+      >
+        CHANT JAPA
+        <div style={{ fontSize: '1rem', fontWeight: 'normal', opacity: 0.9, marginTop: '0.5rem' }}>
+          (Tap Here)
         </div>
-        <div className="stat-box" style={{ flex: 1, marginLeft: '0.5rem' }}>
-          <div className="stat-label">Target Rounds</div>
-          <div className="stat-value">16</div>
+      </button>
+
+      {/* HARI BOL OVERLAY */}
+      {showHariBol && (
+        <div className="hari-bol-overlay flash-animation" style={{ pointerEvents: 'auto' }}>
+          <div className="hari-bol-text">Hari Bol !</div>
+          <p className="text-xl text-white mb-8">One Mala Completed</p>
+          <button className="btn" onClick={(e) => { e.stopPropagation(); startNextRound(); }}>
+            Start Next Round
+          </button>
         </div>
-      </div>
-      
-      <div className="text-center my-4 font-bold text-primary" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
-        हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे ।<br/>
-        हरे राम हरे राम राम राम हरे हरे ॥
-      </div>
+      )}
     </div>
   );
 };
