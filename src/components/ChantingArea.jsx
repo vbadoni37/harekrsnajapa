@@ -130,7 +130,7 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
       {audioUrl && <audio ref={audioRef} src={audioUrl} className="hidden" preload="auto" />}
       
       {/* 1. TOP: Hindi Mahamantra */}
-      <div className="text-center mt-2 mb-6 font-bold text-primary" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
+      <div className="text-center mt-2 mb-6 font-bold text-primary" style={{ fontSize: 'clamp(0.8rem, 4vw, 1.1rem)', lineHeight: '1.5', padding: '0 0.5rem' }}>
         हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे ।<br/>
         हरे राम हरे राम राम राम हरे हरे ॥
       </div>
