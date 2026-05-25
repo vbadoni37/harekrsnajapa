@@ -128,21 +128,10 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
     <div className="flex flex-col w-full h-full" style={{ flex: 1 }}>
       {audioUrl && <audio ref={audioRef} src={audioUrl} className="hidden" preload="auto" />}
       
-      <div className="flex justify-between items-center mb-4 mt-2">
-        <div className="stat-box" style={{ flex: 1, marginRight: '0.5rem' }}>
-          <div className="stat-label">Rounds Completed</div>
-          <div className="stat-value text-primary">{currentRound}</div>
-        </div>
-        <div className="stat-box" style={{ flex: 1, marginLeft: '0.5rem' }}>
-          <div className="stat-label">Target Rounds</div>
-          <div className="stat-value">16</div>
-        </div>
-      </div>
-
       <div 
         className="chant-box" 
         onClick={handleChantAreaClick}
-        style={{ pointerEvents: showHariBol ? 'none' : 'auto' }}
+        style={{ pointerEvents: showHariBol ? 'none' : 'auto', flex: 1, minHeight: '50vh' }}
       >
         <div className="chant-count">{currentChant}</div>
         <div className="chant-label">Tap anywhere to chant</div>
@@ -156,6 +145,22 @@ const ChantingArea = ({ dailyRounds, dailyChants, onUpdateCounts, hasAudio, onRe
             </button>
           </div>
         )}
+      </div>
+
+      <div className="flex justify-between items-center mt-4 mb-2">
+        <div className="stat-box" style={{ flex: 1, marginRight: '0.5rem' }}>
+          <div className="stat-label">Rounds Completed</div>
+          <div className="stat-value text-primary">{currentRound}</div>
+        </div>
+        <div className="stat-box" style={{ flex: 1, marginLeft: '0.5rem' }}>
+          <div className="stat-label">Target Rounds</div>
+          <div className="stat-value">16</div>
+        </div>
+      </div>
+      
+      <div className="text-center my-4 font-bold text-primary" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
+        हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे ।<br/>
+        हरे राम हरे राम राम राम हरे हरे ॥
       </div>
     </div>
   );
