@@ -1,149 +1,138 @@
-import { useState, useEffect } from 'react';
-import { Award, Calendar, TrendingUp } from 'lucide-react';
+import { useMemo } from 'react';
+import { Award, CalendarDays, Flame, RefreshCw, TrendingUp } from 'lucide-react';
 
-const Dashboard = ({ dailyRounds, dailyChants }) => {
-  const [scoreData, setScoreData] = useState({
-    score: 0,
-    status: '',
-    history: []
-  });
+const ROUND_SIZE = 108;
 
-  useEffect(() => {
-    // Calculate current score
+const readJson = (key, fallback) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const formatDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const sameDay = (a, b) => a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
+
+const Dashboard = ({ dailyRounds, dailyChants, settings, onUpdateCounts }) => {
+  const history = readJson('chantingHistory', []);
+
+  const stats = useMemo(() => {
     const now = new Date();
-    const hours = now.getHours();
-    
-    let currentScore = 0;
-    let currentStatus = '';
+    const todayKey = now.toISOString().slice(0, 10);
+    const normalized = [
+      { date: todayKey, rounds: dailyRounds, chants: dailyChants, updatedAt: now.toISOString() },
+      ...history.filter((entry) => entry.date !== todayKey),
+    ];
 
-    if (dailyRounds >= 16) {
-      if (hours < 7) {
-        currentScore = 100;
-        currentStatus = 'Excellent (Before 7 AM)';
-      } else if (hours < 10) {
-        currentScore = 85;
-        currentStatus = 'Great (Before 10 AM)';
-      } else {
-        currentScore = 70;
-        currentStatus = 'Good (Completed)';
+    const completedDays = normalized.filter((entry) => (entry.rounds || 0) >= settings.targetRounds).length;
+    const totalRounds = normalized.reduce((sum, entry) => sum + (entry.rounds || 0), 0);
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const mtdRounds = normalized.reduce((sum, entry) => {
+      const date = new Date(entry.date);
+      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+        return sum + (entry.rounds || 0);
       }
-    } else if (dailyRounds >= 8) {
-      currentScore = 50;
-      currentStatus = 'Halfway there';
-    } else if (dailyRounds >= 4) {
-      currentScore = 25;
-      currentStatus = 'Needs Dedication';
-    } else {
-      currentScore = 0;
-      currentStatus = 'Poor Performance';
+      return sum;
+    }, 0);
+
+    let streak = 0;
+    const byDate = new Map(normalized.map((entry) => [entry.date, entry]));
+    const cursor = new Date(todayKey);
+    for (let i = 0; i < 366; i += 1) {
+      const key = cursor.toISOString().slice(0, 10);
+      const entry = byDate.get(key);
+      if (!entry || (entry.rounds || 0) < settings.targetRounds) break;
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
     }
 
-    // Load history
-    const historyData = localStorage.getItem('chantingHistory');
-    let history = [];
-    if (historyData) {
-      history = JSON.parse(historyData);
-    }
+    return { normalized, completedDays, totalRounds, mtdRounds, streak };
+  }, [dailyRounds, dailyChants, history, settings.targetRounds]);
 
-    setScoreData({
-      score: currentScore,
-      status: currentStatus,
-      history: history
-    });
-  }, [dailyRounds]);
+  const dailyPercent = Math.min(100, Math.round(((dailyRounds * ROUND_SIZE + dailyChants) / (settings.targetRounds * ROUND_SIZE)) * 100));
+  const status = dailyRounds >= settings.targetRounds ? 'Daily vow complete' : dailyRounds >= settings.targetRounds / 2 ? 'Steady progress' : 'Begin gently and continue';
 
-  const closeDay = () => {
-    if (window.confirm("Are you sure you want to close today's chanting? This will save your score to history and reset for tomorrow.")) {
-      const today = new Date().toLocaleDateString();
-      const newEntry = {
-        date: today,
-        rounds: dailyRounds,
-        score: scoreData.score,
-        status: scoreData.status
-      };
-
-      const newHistory = [newEntry, ...scoreData.history.filter(h => h.date !== today)];
-      localStorage.setItem('chantingHistory', JSON.stringify(newHistory));
-      
-      setScoreData(prev => ({ ...prev, history: newHistory }));
-      alert("Day closed successfully. Hari Bol!");
-    }
+  const resetToday = () => {
+    if (!window.confirm('Reset today\'s count and update history?')) return;
+    onUpdateCounts(0, 0);
   };
 
-  // Calculate MTD and YTD
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  let mtdRounds = 0;
-  let ytdRounds = 0;
-
-  scoreData.history.forEach(entry => {
-    const entryDate = new Date(entry.date);
-    if (entryDate.getFullYear() === currentYear) {
-      ytdRounds += entry.rounds;
-      if (entryDate.getMonth() === currentMonth) {
-        mtdRounds += entry.rounds;
-      }
-    }
-  });
-
-  // Add current day if not already in history
-  const todayStr = now.toLocaleDateString();
-  if (!scoreData.history.find(h => h.date === todayStr)) {
-    mtdRounds += dailyRounds;
-    ytdRounds += dailyRounds;
-  }
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="score-card rounded-xl">
-        <h2 className="text-xl font-bold flex items-center justify-center gap-2">
-          <Award className="text-primary" /> Today's Performance
-        </h2>
-        <div className="score-value">{scoreData.score}%</div>
-        <div className="font-bold text-xl mb-2">{scoreData.status}</div>
-        <p className="text-muted">
-          Rounds: {dailyRounds} / 16
-        </p>
-      </div>
-
-      <div className="stat-grid mt-2">
-        <div className="card text-center mb-0" style={{ padding: '1rem' }}>
-          <TrendingUp className="mx-auto mb-2 text-primary" size={24} />
-          <div className="stat-value">{mtdRounds}</div>
-          <div className="stat-label">MTD Rounds</div>
+    <div className="dashboard-screen">
+      <section className="score-card">
+        <div className="score-topline">
+          <Award size={22} />
+          <span>Today</span>
         </div>
-        <div className="card text-center mb-0" style={{ padding: '1rem' }}>
-          <Calendar className="mx-auto mb-2 text-primary" size={24} />
-          <div className="stat-value">{ytdRounds}</div>
-          <div className="stat-label">YTD Rounds</div>
+        <div className="score-value">{dailyPercent}%</div>
+        <h2>{status}</h2>
+        <p>{dailyRounds} rounds and {dailyChants} chants toward {settings.targetRounds} rounds</p>
+      </section>
+
+      <section className="stat-grid dashboard-stats">
+        <div className="stat-box">
+          <Flame size={20} />
+          <span>Streak</span>
+          <strong>{stats.streak} days</strong>
         </div>
-      </div>
+        <div className="stat-box">
+          <TrendingUp size={20} />
+          <span>This Month</span>
+          <strong>{stats.mtdRounds}</strong>
+        </div>
+        <div className="stat-box">
+          <CalendarDays size={20} />
+          <span>Total Rounds</span>
+          <strong>{stats.totalRounds}</strong>
+        </div>
+        <div className="stat-box">
+          <Award size={20} />
+          <span>Goal Days</span>
+          <strong>{stats.completedDays}</strong>
+        </div>
+      </section>
 
-      <button className="btn outline w-full mt-4" onClick={closeDay}>
-        Close Day & Save History
-      </button>
-
-      {scoreData.history.length > 0 && (
-        <div className="card mt-4">
-          <h3 className="font-bold mb-4 text-xl">Recent History</h3>
-          <div className="flex flex-col gap-2">
-            {scoreData.history.slice(0, 5).map((entry, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                <div>
-                  <div className="font-bold">{entry.date}</div>
-                  <div className="text-sm text-muted">{entry.status}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-primary">{entry.rounds} Rounds</div>
-                  <div className="text-sm">{entry.score}%</div>
-                </div>
-              </div>
-            ))}
+      <section className="card history-card">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Practice Log</p>
+            <h3>Recent Days</h3>
           </div>
+          <button className="icon-toggle" onClick={resetToday} type="button" title="Reset today">
+            <RefreshCw size={18} />
+          </button>
         </div>
-      )}
+
+        {stats.normalized.length > 0 ? (
+          <div className="history-list">
+            {stats.normalized.slice(0, 10).map((entry) => {
+              const isToday = sameDay(new Date(entry.date), new Date());
+              const percent = Math.min(100, Math.round(((entry.rounds || 0) / settings.targetRounds) * 100));
+              return (
+                <div className="history-row" key={entry.date}>
+                  <div>
+                    <strong>{isToday ? 'Today' : formatDate(entry.date)}</strong>
+                    <span>{entry.rounds || 0} rounds, {entry.chants || 0} chants</span>
+                  </div>
+                  <div className="mini-progress" aria-label={`${percent}% complete`}>
+                    <span style={{ width: `${percent}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="empty-state">Your practice log will appear after the first chant.</p>
+        )}
+      </section>
     </div>
   );
 };
