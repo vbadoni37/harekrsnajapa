@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Activity, BarChart3, Mic2 } from 'lucide-react';
-import { get } from 'idb-keyval';
+import { del, get } from 'idb-keyval';
 import AudioRecorder from './components/AudioRecorder';
 import ChantingArea from './components/ChantingArea';
 import Dashboard from './components/Dashboard';
@@ -75,6 +75,29 @@ function App() {
     localStorage.setItem('japaSettings', JSON.stringify(merged));
   };
 
+
+  const handleFreshStart = async () => {
+    const confirmed = window.confirm(
+      'This will reset all counts, history, Golok coins, settings, and saved recording on this device. Continue?'
+    );
+    if (!confirmed) return;
+
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('chantData_'))
+      .forEach((key) => localStorage.removeItem(key));
+
+    localStorage.removeItem('chantingHistory');
+    localStorage.removeItem('golokSevaLog');
+    localStorage.removeItem('japaSettings');
+
+    await Promise.all([del('mahamantra_audio'), del('mahamantra_audio_meta')]);
+
+    setDailyRounds(0);
+    setDailyChants(0);
+    setHasAudio(false);
+    setSettings(DEFAULT_SETTINGS);
+    setActiveTab('record');
+  };
   const navItems = [
     { id: 'record', label: 'Record', icon: Mic2 },
     { id: 'chant', label: 'Chant', icon: Activity },
@@ -113,6 +136,7 @@ function App() {
             dailyChants={dailyChants}
             settings={settings}
             onUpdateCounts={handleUpdateCounts}
+            onFreshStart={handleFreshStart}
           />
         )}
       </main>
@@ -135,4 +159,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Award, Bell, BookOpen, Coins, Flame, Gift, HeartPulse, MapPin, Music2, RefreshCw, Sparkles, TrendingUp } from 'lucide-react';
 
 const ROUND_SIZE = 108;
@@ -63,7 +63,7 @@ const getEkadashiAlert = () => {
   return EKADASHI_DATES.find((event) => event.date > todayKey) || null;
 };
 
-const Dashboard = ({ dailyRounds, dailyChants, settings, onUpdateCounts }) => {
+const Dashboard = ({ dailyRounds, dailyChants, settings, onUpdateCounts, onFreshStart }) => {
   const [showMonthChart, setShowMonthChart] = useState(false);
   const [sevaLog, setSevaLog] = useState(() => readJson('golokSevaLog', []));
   const history = readJson('chantingHistory', []);
@@ -111,6 +111,17 @@ const Dashboard = ({ dailyRounds, dailyChants, settings, onUpdateCounts }) => {
       <section className="stat-grid dashboard-stats"><div className="stat-box"><HeartPulse size={20} /><span>Spiritual Health</span><strong>{stats.currentHealth.label}</strong></div><button className="stat-box stat-action" onClick={() => setShowMonthChart((value) => !value)} type="button"><TrendingUp size={20} /><span>This Month</span><strong>{stats.mtdRounds}</strong></button><div className="stat-box"><Flame size={20} /><span>Gulak</span><strong>{stats.gulakCoins}</strong></div><div className="stat-box"><Award size={20} /><span>Goal Days</span><strong>{stats.completedDays}</strong></div></section>
       {showMonthChart && <section className="card health-card"><div className="section-heading"><div><p className="eyebrow">Your Spiritual Health Chart</p><h3>Daywise Japa This Month</h3></div><span className={`health-pill ${stats.currentHealth.className}`}>{stats.currentHealth.label}</span></div><div className="health-legend">{['Sick', 'Unhealthy', 'Moderate', 'Healthy', 'Excellent', 'Upcoming'].map((label) => <span key={label} className={`legend-dot ${label.toLowerCase()}`}>{label}</span>)}</div><div className="japa-chart" style={{ '--days-in-month': stats.monthDays.length }}>{stats.monthDays.map((entry) => <div className="chart-day" key={entry.date} title={`${formatDate(entry.date)}: ${entry.health.label}`}><span className={`chart-bar ${entry.health.className}`} style={{ height: `${Math.max(entry.health.percent, 8)}%` }} /><small>{parseDateKey(entry.date).getDate()}</small></div>)}</div><div className="health-summary"><span>{stats.excellentDays} excellent mornings</span><span>{stats.healthyDays} days at 16 rounds</span><span>{stats.monthGulakCoins} monthly Gulak coins</span></div></section>}
       <section className="card seva-card"><div className="section-heading"><div><p className="eyebrow">Golok Coins</p><h3>Seva & Bonus Ledger</h3></div><strong className="coin-chip">+100 each</strong></div><div className="seva-grid">{SEVA_ITEMS.map((item) => { const Icon = item.icon; return <button className="seva-tile" key={item.id} onClick={() => addSevaEntry(item)} type="button"><Icon size={18} /><span>{item.title}</span><strong>{item.coins}</strong></button>; })}</div>{sevaLog.length > 0 && <div className="coin-ledger">{sevaLog.slice(0, 8).map((entry) => <button className="ledger-row" key={entry.id} onClick={() => removeSevaEntry(entry.id)} type="button" title="Tap to remove"><span>{entry.title}</span><small>{formatDate(entry.date)}</small><strong>+{entry.coins}</strong></button>)}</div>}</section>
+
+      <section className="card fresh-start-card">
+        <div>
+          <p className="eyebrow">Shared Device</p>
+          <h3>Fresh Start</h3>
+          <span>Reset counts, coins, history, settings, and recording for the next user.</span>
+        </div>
+        <button className="btn danger" onClick={onFreshStart} type="button">
+          <RefreshCw size={18} /> Fresh Start
+        </button>
+      </section>
       <section className="card history-card"><div className="section-heading"><div><p className="eyebrow">Practice Log</p><h3>Recent Days</h3></div><button className="icon-toggle" onClick={resetToday} type="button" title="Reset today"><RefreshCw size={18} /></button></div><div className="history-list">{stats.normalized.slice(0, 10).map((entry) => { const health = getHealth(entry, settings.targetRounds, entry.date); const isToday = entry.date === toDateKey(); return <div className="history-row rich-history-row" key={entry.date}><div><strong>{isToday ? 'Today' : formatDate(entry.date)}</strong><span>{entry.rounds || 0} rounds, {entry.chants || 0} chants</span></div><span className={`health-pill ${health.className}`}>{health.label}</span></div>; })}</div></section>
     </div>
   );

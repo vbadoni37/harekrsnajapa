@@ -1018,3 +1018,34 @@ button {
 .legend-dot.upcoming::before {
   background: #8a8176;
 }
+
+.fresh-start-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.fresh-start-card div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.fresh-start-card h3 {
+  font-size: 1.15rem;
+}
+
+.fresh-start-card span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+@media (max-width: 440px) {
+  .fresh-start-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
