@@ -36,7 +36,7 @@ const readJson = (key, fallback) => { try { const value = localStorage.getItem(k
 const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 const toDateKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDateKey = (value) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day); };
-const formatDate = (value, options = { month: 'short', day: 'numeric', year: 'numeric' }) => { const date = value instanceof Date ? value : parseDateKey(value); if (Number.isNaN(date.getTime())) return value; return date.toLocaleDateString(undefined, options); };
+const formatDate = (value) => { const date = value instanceof Date ? value : parseDateKey(value); if (Number.isNaN(date.getTime())) return value; const day = String(date.getDate()).padStart(2, '0'); const month = String(date.getMonth() + 1).padStart(2, '0'); return day + '-' + month + '-' + date.getFullYear(); };
 const addDays = (date, days) => { const nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()); nextDate.setDate(nextDate.getDate() + days); return nextDate; };
 const getDaysThisMonth = () => { const now = new Date(); const totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); return Array.from({ length: totalDays }, (_, index) => new Date(now.getFullYear(), now.getMonth(), index + 1)); };
 const getCompletionHour = (entry) => { if (!entry?.updatedAt) return 23; const date = new Date(entry.updatedAt); if (Number.isNaN(date.getTime())) return 23; return date.getHours(); };
