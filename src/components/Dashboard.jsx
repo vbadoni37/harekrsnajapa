@@ -35,7 +35,13 @@ const EKADASHI_DATES = [
 const readJson = (key, fallback) => { try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; } catch { return fallback; } };
 const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 const toDateKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-const parseDateKey = (value) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day); };
+const parseDateKey = (value) => {
+  const parts = value.split('-').map(Number);
+  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) return new Date('invalid');
+  const [first, second, third] = parts;
+  if (first > 1900) return new Date(first, second - 1, third);
+  return new Date(third, second - 1, first);
+};
 const formatDate = (value) => { const date = value instanceof Date ? value : parseDateKey(value); if (Number.isNaN(date.getTime())) return value; const day = String(date.getDate()).padStart(2, '0'); const month = String(date.getMonth() + 1).padStart(2, '0'); return day + '-' + month + '-' + date.getFullYear(); };
 const addDays = (date, days) => { const nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()); nextDate.setDate(nextDate.getDate() + days); return nextDate; };
 const getDaysThisMonth = () => { const now = new Date(); const totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); return Array.from({ length: totalDays }, (_, index) => new Date(now.getFullYear(), now.getMonth(), index + 1)); };
@@ -93,10 +99,10 @@ const Dashboard = ({ dailyRounds, dailyChants, settings, onUpdateCounts, onFresh
   const resetToday = () => { if (!window.confirm('Reset today\'s count and update history?')) return; onUpdateCounts(0, 0); };
   const addSevaEntry = (item) => {
     const today = toDateKey();
-    const date = window.prompt(`Enter date for ${item.title}`, today);
+    const date = window.prompt(`Enter date for ${item.title} (DD-MM-YYYY)`, formatDate(today));
     if (!date) return;
     const parsed = parseDateKey(date);
-    if (Number.isNaN(parsed.getTime())) { window.alert('Please enter date as YYYY-MM-DD.'); return; }
+    if (Number.isNaN(parsed.getTime())) { window.alert('Please enter date as DD-MM-YYYY.'); return; }
     const entryDate = toDateKey(parsed);
     const entry = { id: `${item.id}-${entryDate}-${sevaLog.length + 1}`, type: item.id, title: item.title, coins: item.coins, date: entryDate, createdAt: entryDate };
     const nextLog = [entry, ...sevaLog].slice(0, 200);
