@@ -863,8 +863,7 @@ button {
 
 .japa-chart {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(22px, 1fr);
+  grid-template-columns: repeat(var(--days-in-month), minmax(22px, 1fr));
   align-items: end;
   min-height: 170px;
   gap: 0.35rem;
@@ -981,6 +980,41 @@ button {
   }
 
   .japa-chart {
-    grid-auto-columns: 24px;
+    grid-template-columns: repeat(var(--days-in-month), 24px);
   }
+}
+
+.ekadashi-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  color: #fffaf1;
+  background: linear-gradient(135deg, var(--rose), var(--saffron-dark));
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.ekadashi-alert div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ekadashi-alert strong,
+.ekadashi-alert span {
+  overflow-wrap: anywhere;
+}
+
+.ekadashi-alert span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.health-pill.upcoming,
+.chart-bar.upcoming,
+.legend-dot.upcoming::before {
+  background: #8a8176;
 }
